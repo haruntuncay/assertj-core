@@ -1,6 +1,7 @@
 package org.assertj.core.api;
 
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.assertj.core.api.recursive.comparison.RecursiveIterableComparisonHelper;
 import org.assertj.core.error.ShouldBeEqualByComparingFieldByFieldRecursively;
 import org.assertj.core.util.Arrays;
 import org.assertj.core.util.introspection.IntrospectionError;
@@ -14,11 +15,13 @@ public class RecursiveIterableComparisonAssert<SELF extends RecursiveIterableCom
 
   private RecursiveComparisonConfiguration recursiveComparisonConfiguration;
   private AbstractIterableAssert iterableAssert;
+  private RecursiveIterableComparisonHelper recursiveIterableComparisonHelper;
 
   public RecursiveIterableComparisonAssert(ACTUAL actual, RecursiveComparisonConfiguration recursiveComparisonConfiguration, AbstractIterableAssert iterableAssert) {
     super(actual, recursiveComparisonConfiguration);
     this.iterableAssert = iterableAssert;
     this.recursiveComparisonConfiguration = recursiveComparisonConfiguration;
+    recursiveIterableComparisonHelper = new RecursiveIterableComparisonHelper(actual, recursiveComparisonConfiguration, info, objects.getFailures());
   }
 
   /**
@@ -156,8 +159,10 @@ public class RecursiveIterableComparisonAssert<SELF extends RecursiveIterableCom
 
     boolean ignoreCollectionOrder = recursiveComparisonConfiguration.getIgnoreCollectionOrder();
     // comparison order can not be ignored
-    if(!ignoreCollectionOrder)
-        iterableAssert.isEqualTo(expected);
+    if(!ignoreCollectionOrder) {
+      //iterableAssert.isEqualTo(expected);
+      recursiveIterableComparisonHelper.isEqualTo(expected);
+    }
     else {
       // comparison order can be ignored
       for(Object element : expected)
